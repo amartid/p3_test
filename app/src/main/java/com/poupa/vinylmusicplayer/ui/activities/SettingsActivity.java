@@ -189,50 +189,49 @@ public class SettingsActivity extends AbsBaseActivity implements ColorChooserDia
             super.onDestroyView();
             PreferenceUtil.getInstance().unregisterOnSharedPreferenceChangedListener(this);
         }
+        
+        private CharSequence createThemeEntry(Context context, String s) {
+        	return new CharSequence(
+	        	String.format("%s\n%s",
+	            context.getString(R.string.follow_system_theme_name),
+	            MusicUtil.buildInfoString(
+	                    context.getString(R.string.light_theme_name),
+	                    context.getString(s)
+	            ))
+        	);
+        }
+        
+        private void addChoicesToFollowSystemTheme(Context context,Preference generalTheme) {// Extend the list, to add choices to follow system theme
+            ListPreference listPref = (ListPreference) generalTheme;
+            ArrayList<CharSequence> entries = new ArrayList<>(Arrays.asList(listPref.getEntries()));
+            ArrayList<CharSequence> values = new ArrayList<>(Arrays.asList(listPref.getEntryValues()));
 
-        private void invalidateSettings() {
-            final Preference generalTheme = findPreference(PreferenceUtil.GENERAL_THEME);
+            values.add(PreferenceUtil.GENERAL_THEME_FOLLOW_SYSTEM_LIGHT_OR_DARK);
+            entries.add(createThemeEntry(context,R.string.dark_theme_name));
+            values.add(PreferenceUtil.GENERAL_THEME_FOLLOW_SYSTEM_LIGHT_OR_BLACK);
+            entries.add(createThemeEntry(context,R.string.black_theme_name));
+
+            listPref.setEntries(entries.toArray(new CharSequence[0]));
+            listPref.setEntryValues(values.toArray(new CharSequence[0]));
+        }
+        private void invalidateGeneralTheme() {
+        	final Preference generalTheme = findPreference(PreferenceUtil.GENERAL_THEME);
             if (generalTheme != null) {
                 final Context context = getContext();
                 if (context != null && VinylMusicPlayerColorUtil.isSystemThemeSupported()) {
-                    // Extend the list, to add choices to follow system theme
-                    ListPreference listPref = (ListPreference) generalTheme;
-                    ArrayList<CharSequence> entries = new ArrayList<>(Arrays.asList(listPref.getEntries()));
-                    ArrayList<CharSequence> values = new ArrayList<>(Arrays.asList(listPref.getEntryValues()));
-
-                    values.add(PreferenceUtil.GENERAL_THEME_FOLLOW_SYSTEM_LIGHT_OR_DARK);
-                    entries.add(String.format("%s\n%s",
-                            context.getString(R.string.follow_system_theme_name),
-                            MusicUtil.buildInfoString(
-                                    context.getString(R.string.light_theme_name),
-                                    context.getString(R.string.dark_theme_name)
-                            )));
-
-                    values.add(PreferenceUtil.GENERAL_THEME_FOLLOW_SYSTEM_LIGHT_OR_BLACK);
-                    entries.add(String.format("%s\n%s",
-                            context.getString(R.string.follow_system_theme_name),
-                            MusicUtil.buildInfoString(
-                                    context.getString(R.string.light_theme_name),
-                                    context.getString(R.string.black_theme_name)
-                            )));
-
-                    listPref.setEntries(entries.toArray(new CharSequence[0]));
-                    listPref.setEntryValues(values.toArray(new CharSequence[0]));
+                	addChoicesToFollowSystemTheme(context,generalTheme);
                 }
 
                 setSummary(generalTheme);
                 generalTheme.setOnPreferenceChangeListener((preference, o) -> {
-                    String themeName = (String) o;
 
                     setSummary(generalTheme, o);
 
-                    if (getActivity() != null) {
-                        ThemeStore.markChanged(getActivity());
-                    }
+                    if (getActivity() != null)ThemeStore.markChanged(getActivity());
 
+                    // Set the new theme so that updateAppShortcuts can pull it
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-                        // Set the new theme so that updateAppShortcuts can pull it
-                        getActivity().setTheme(PreferenceUtil.getThemeResFromPrefValue(themeName));
+                        getActivity().setTheme(PreferenceUtil.getThemeResFromPrefValue((String) o));
                         new DynamicShortcutManager(getActivity()).updateDynamicShortcuts();
                     }
 
@@ -240,8 +239,10 @@ public class SettingsActivity extends AbsBaseActivity implements ColorChooserDia
                     return true;
                 });
             }
-
-            final Preference themeStyle = findPreference("theme_style");
+        }
+        
+        private void invalidateThemeStyle() {
+        	final Preference themeStyle = findPreference("theme_style");
             themeStyle.setOnPreferenceChangeListener((preference, o) -> {
                 ThemeStyleUtil.updateInstance(PreferenceUtil.getThemeStyleFromPrefValue((String) o));
                 if (getActivity() != null) {
@@ -250,15 +251,19 @@ public class SettingsActivity extends AbsBaseActivity implements ColorChooserDia
 
                 return true;
             });
-
-            final Preference autoDownloadImagesPolicy = findPreference(PreferenceUtil.AUTO_DOWNLOAD_IMAGES_POLICY);
+        }
+        
+        private void invalidateAutoDownloadImagesPolicy() {
+        	final Preference autoDownloadImagesPolicy = findPreference(PreferenceUtil.AUTO_DOWNLOAD_IMAGES_POLICY);
             setSummary(autoDownloadImagesPolicy);
             autoDownloadImagesPolicy.setOnPreferenceChangeListener((preference, o) -> {
                 setSummary(autoDownloadImagesPolicy, o);
                 return true;
             });
-
-            final ATEColorPreference primaryColorPref = findPreference("primary_color");
+        }
+        
+        private void invalidatePrimaryColorPref() {
+        	final ATEColorPreference primaryColorPref = findPreference("primary_color");
             if (getActivity() != null) {
                 final int primaryColor = ThemeStore.primaryColor(getActivity());
                 primaryColorPref.setColor(primaryColor, ColorUtil.darkenColor(primaryColor));
@@ -272,8 +277,10 @@ public class SettingsActivity extends AbsBaseActivity implements ColorChooserDia
                     return true;
                 });
             }
-
-            final ATEColorPreference accentColorPref = findPreference("accent_color");
+        }
+        
+        private void invalidateAccentColorPref(){
+        	final ATEColorPreference accentColorPref = findPreference("accent_color");
             final int accentColor = ThemeStore.accentColor(getActivity());
             accentColorPref.setColor(accentColor, ColorUtil.darkenColor(accentColor));
             accentColorPref.setOnPreferenceClickListener(preference -> {
@@ -285,8 +292,10 @@ public class SettingsActivity extends AbsBaseActivity implements ColorChooserDia
                         .show(getActivity());
                 return true;
             });
-
-            TwoStatePreference colorNavBar = findPreference("should_color_navigation_bar");
+        }
+        
+        private void invalidateColorNavBar() {
+        	TwoStatePreference colorNavBar = findPreference("should_color_navigation_bar");
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
                 colorNavBar.setVisible(false);
             } else {
@@ -299,8 +308,10 @@ public class SettingsActivity extends AbsBaseActivity implements ColorChooserDia
                     return true;
                 });
             }
-
-            final TwoStatePreference classicNotification = findPreference(PreferenceUtil.CLASSIC_NOTIFICATION);
+        }
+        
+        private void invalidateNotifications(){
+        	final TwoStatePreference classicNotification = findPreference(PreferenceUtil.CLASSIC_NOTIFICATION);
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
                 classicNotification.setVisible(false);
             } else {
@@ -323,8 +334,10 @@ public class SettingsActivity extends AbsBaseActivity implements ColorChooserDia
                     return true;
                 });
             }
-
-            final TwoStatePreference colorAppShortcuts = findPreference("should_color_app_shortcuts");
+        }
+        
+        private void invalidateColorAppShortcuts(){
+        	final TwoStatePreference colorAppShortcuts = findPreference("should_color_app_shortcuts");
             if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) {
                 colorAppShortcuts.setVisible(false);
             } else {
@@ -339,8 +352,9 @@ public class SettingsActivity extends AbsBaseActivity implements ColorChooserDia
                     return true;
                 });
             }
-
-            final TwoStatePreference transparentWidgets = findPreference("should_make_widget_background_transparent");
+        }
+        private void invalidateTransparentWidgets(){
+        	final TwoStatePreference transparentWidgets = findPreference("should_make_widget_background_transparent");
             transparentWidgets.setChecked(PreferenceUtil.getInstance().transparentBackgroundWidget());
             transparentWidgets.setOnPreferenceChangeListener((preference, newValue) -> {
                 // Save preference
@@ -351,8 +365,9 @@ public class SettingsActivity extends AbsBaseActivity implements ColorChooserDia
 
                 return true;
             });
-
-            final Preference equalizer = findPreference("equalizer");
+        }
+		private void invalidateEqualizer(){
+			final Preference equalizer = findPreference("equalizer");
             if (!hasEqualizer()) {
                 equalizer.setEnabled(false);
                 equalizer.setSummary(getResources().getString(R.string.no_equalizer));
@@ -361,7 +376,20 @@ public class SettingsActivity extends AbsBaseActivity implements ColorChooserDia
                 NavigationUtil.openEqualizer(getActivity());
                 return true;
             });
-
+		}
+		
+        private void invalidateSettings() {
+        	invalidateGeneralTheme();
+        	invalidateThemeStyle();
+        	invalidateAutoDownloadImagesPolicy();
+        	invalidatePrimaryColorPref();
+        	invalidateAccentColorPref();
+        	invalidateColorNavBar();
+            invalidateNotifications();
+            invalidateColorAppShortcuts();
+            invalidateTransparentWidgets();
+            invalidateEqualizer();
+            
             if (PreferenceUtil.getInstance().getReplayGainSourceMode() == PreferenceUtil.RG_SOURCE_MODE_NONE) {
                 Preference pref = findPreference("replaygain_preamp");
                 pref.setEnabled(false);
