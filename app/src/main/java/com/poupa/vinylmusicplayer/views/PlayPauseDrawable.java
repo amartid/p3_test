@@ -25,6 +25,9 @@ public class PlayPauseDrawable extends Drawable {
 
     private static final Property<PlayPauseDrawable, Float> PROGRESS =
             new Property<PlayPauseDrawable, Float>(Float.class, "progress") {
+                private float getProgress() {
+                    return progress;
+                }
                 @Override
                 public Float get(@NonNull PlayPauseDrawable d) {
                     return d.getProgress();
@@ -145,9 +148,7 @@ public class PlayPauseDrawable extends Drawable {
         invalidateSelf();
     }
 
-    private float getProgress() {
-        return progress;
-    }
+
 
     @Override
     public void setAlpha(int alpha) {
