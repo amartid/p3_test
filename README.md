@@ -1,22 +1,5 @@
 # Vinyl Music Player
-[![License: GPL v3](https://img.shields.io/badge/License-GPL%20v3-blue.svg)](https://github.com/AdrienPoupa/VinylMusicPlayer/blob/master/LICENSE.txt) [![CircleCI](https://circleci.com/gh/AdrienPoupa/VinylMusicPlayer/tree/master.svg?style=svg)](https://circleci.com/gh/AdrienPoupa/VinylMusicPlayer/tree/master)
-
-<a href="https://f-droid.org/packages/com.poupa.vinylmusicplayer/" target="_blank">
-<img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="90"/></a>
-<a href='https://play.google.com/store/apps/details?id=com.poupa.vinylmusicplayer'><img alt='Get it on Google Play' src='https://play.google.com/intl/en_us/badges/images/generic/en_badge_web_generic.png' height="90"/></a>
-
-**A material designed local music player for Android.**
-
-**Forked from [Phonograph](https://github.com/kabouzeid/Phonograph); makes all Pro features free, as they used to be.**
-
-Additional features:
-* Android Auto support
-* ReplayGain
-* SD Card write access
-* [...and more!](https://github.com/AdrienPoupa/VinylMusicPlayer/blob/master/CHANGELOG.md)
-
-![Screenshots](./art/art.png?raw=true)
-
-Icon made by [Nikita Golubev](https://www.flaticon.com/authors/nikita-golubev) from www.flaticon.com
-
-Album image by [Virginia State Parks](https://www.flickr.com/photos/vastateparksstaff/38645226714/) (CC BY 2.0)
+This is the code for the 3rd assignment on Advanced Software Engineering Course.
+Aim of this project is to reduce the values of the metrics on vulnerable classes of the code.
+This was achieved through changes on the code by performing refactoring on problematic methods. These Methods were detected by Smellsdetector. Analysis was made by executing MetricsCalculator for every change and by using Microsoft Excel to edit the outcome data. 
+**Forked from [Vinyl Music Player]
